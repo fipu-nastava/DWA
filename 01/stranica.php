@@ -1,5 +1,7 @@
 Dobrodošli na novu php stranicu, ali to je zapravo običan HTML na steroidima, dinamički HTML.
 
+<b>Ovo je debeli tekst</b>
+
 <?php
 
     $var = "OK";
