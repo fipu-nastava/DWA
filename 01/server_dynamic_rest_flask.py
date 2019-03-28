@@ -1,43 +1,71 @@
-from flask import Flask, jsonify, request, Response
-from flask import jsonify
+from flask import Flask, Response, jsonify, request
 
+app = Flask(__name__)
 
-app = Flask(__name__)  # __name__ sadrži naziv trenutnog fajla
-studenti = [
-    {"id": 1, "ime": "Hrvoje", "prezime": "Horvat"},
-    {"id": 2, "ime": "Mirko", "prezime": "Mirkić"}
+# emulacija baze (samo memorija)
+studenti_list = [
+    {
+        "id": 1,
+        "ime": "Hrvoje",
+        "prezime": "Horvat"
+    },
+    {
+        "id": 2,
+        "ime": "Nikolina",
+        "prezime": "Nikolić"
+    }
 ]
+# primjer append-a
+studenti_list.append({"id":3, "ime": "Ivica", "prezime": "Ivić"})
 
+# .. ali drzat cemo kao dict zbog vremenske složenosti pristupa
+studenti_dict = { s["id"]: s for s in studenti_list }
+zadnji_id = max(s["id"] for s in studenti_list)
 
-@app.route('/studenti')  # dekorator koji navodi Flasku koji URL obrađuje metoda
-def dohvati_studente():
-    return jsonify({"answer": studenti})
-
-
-@app.route('/studenti', methods=['POST'])
-def spremi_studenta():
-    s = request.get_json()
-    # ovdje bi trebalo provjeriti jel sve OK
-    print("Dobio sam studenta: ", s)
-    studenti.append(s)
-    r = Response(status=201)
-    r.set_data("Created.")
+@app.route("/")
+def hendler_kako_god():
+    r = Response(status=200)
+    r.set_data("Hello world!")
     return r
 
+@app.route("/studenti", methods=["PUT"])
+def dodaj_novog_studenta():
+    global zadnji_id  # jer želimo mijenjati vanjsku (globalnu) varijablu
 
-@app.route('/studenti/<id_studenta>')
+    data = request.get_json()
+    data["id"] = zadnji_id + 1
+    zadnji_id = data["id"]
+
+    # studenti_list.append(data)
+    studenti_dict[data["id"]] = data
+
+    response = Response(status=201)  # instancijacija odgovora
+    response.headers["Location"] = f"/studenti/{zadnji_id}"
+    return response
+
+@app.route("/studenti")
+def listaj_studente():
+    return jsonify(list(studenti_dict.values()))
+
+@app.route("/studenti/<id_studenta>")
 def dohvati_studenta(id_studenta):
-    answer = None
-    for s in studenti:
-        # može li bolje?
-        if "id" in s and s["id"] == int(id_studenta):
-            answer = s
-            break
 
-    return jsonify({"answer": answer})
+    ids = int(id_studenta)
 
+    # for s in studenti_list:
+    #     if s["id"] == ids:
+    #         return jsonify(s)
+    if ids in studenti_dict:
+        return jsonify(studenti_dict[ids])
+    else:
+        return Response(status=404)
 
-# if __name__ == '__main__':
-#     app.run()
+@app.route("/studenti/<id_studenta>", methods=["DELETE"])
+def obrisi_studenta(id_studenta):
 
-# pokretanje: FLASK_DEBUG=1 FLASK_APP=server_dynamic_rest_flask.py flask run
+    ids = int(id_studenta)
+    if ids in studenti_dict:
+        del studenti_dict[ids]
+        return Response(status=202)
+
+    return Response(status=404)
