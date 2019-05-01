@@ -13,8 +13,8 @@ import os
 db = Database()
 
 # os.remove("02/database.sqlite")
-# db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
-db.bind(provider='postgres', user='postgres', password='dwa', host='localhost', database='dwa')
+db.bind(provider='sqlite', filename='database.sqlite', create_db=True)
+# db.bind(provider='postgres', user='postgres', password='dwa', host='localhost', database='dwa')
 
 # klasa modela
 class Student(db.Entity):
