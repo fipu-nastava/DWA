@@ -6,7 +6,9 @@ from uuid import uuid4 as gid, UUID
 class Studenti:
     @db_session()
     def listaj():
+        # ORM upit
         q = select(s for s in Student)
+        # svaku ORM instancu pretvaramo u dictionary
         studenti = [s.to_dict() for s in q]
         return studenti
 
@@ -14,6 +16,7 @@ class Studenti:
     def dodaj(s):
         try:
             s["id"] = str(gid())
+            # https://pythontips.com/2013/08/04/args-and-kwargs-in-python-explained/
             s = Student(**s)
             return True, None
         except Exception as e:
@@ -39,10 +42,13 @@ class Ispiti:
     @db_session()
     def listaj():
         q = select(i for i in Ispit)
+        # ovaj puta dohvati i listu vezanih entiteta
         data = [x.to_dict(with_collections=True) for x in q]
         for d in data:
             stavke = d["stavke"]
+            # Pretvorba u isoformat, npr. 2019-12-04
             d["datum"] = d["datum"].isoformat()
+            # Dohvati sve detalje vezanih entiteta
             d["stavke"] = Ispiti.dohvati_stavke(stavke)
         return data 
 
@@ -57,16 +63,18 @@ class Ispiti:
         try:
             s["id"] = str(gid())
             stavke = s["stavke"]
-            del s["stavke"]  # ne može biti dict/list
+            del s["stavke"]  # ne može biti dict/list, mičemo za sada
             s = Ispit(**s)
 
-            # dodaj i stavke sada
+            # dodaj i stavke sada, i poveži ih na novonastalo zaglavlje
             for stavka in stavke:
                 stavka["id"] = str(gid())
                 stavka["ispit"] = s
                 st = StavkaIspita(**stavka)
 
+            # vraćamo tuple - dvije ili više vrijednosti istovremeno
             return True, None
+
         except Exception as e:
             return False, str(e)
 

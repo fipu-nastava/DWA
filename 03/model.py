@@ -6,6 +6,7 @@ import os
 
 db = Database()
 
+# ukoliko želiš da se svaki puta briše baza
 # if os.path.exists("database.sqlite"):
 #    os.remove("database.sqlite")
 
@@ -16,6 +17,7 @@ class Student(db.Entity):
     id = PrimaryKey(str)
     jmbag = Required(str)
     ime = Required(str)
+    # Veza na više, pišemo kao string jer je definirano tek niže
     kolegiji = Set("Kolegij")
     ocjene = Set("StavkaIspita")
 
@@ -24,6 +26,7 @@ class Kolegij(db.Entity):
     id = PrimaryKey(str)
     naziv = Required(str)
     semestar = Required(int)
+    # Veza na više, ovaj puta ne mora kao string, ali može
     studenti = Set(Student)
     ispiti = Set("Ispit")
 
@@ -47,7 +50,7 @@ class StavkaIspita(db.Entity):
 db.generate_mapping(check_tables=True, create_tables=True)
 
 
-# zgodno za testiranje
+# zgodno za testiranje, ne poziva se kad se uključi ovaj file kao modul
 if __name__ == "__main__":
     with db_session() as s:
         a = Student(id="1", jmbag="02", ime="Nikola")
