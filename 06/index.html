@@ -1,0 +1,54 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>DWA-frontend 01</title>
+  <meta name="description" content="Basic DWA Vue.js example">
+  <meta name="author" content="DWA">
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"/>
+  <style>
+	body {
+	  padding: 0 20px;
+	}
+  </style>
+
+</head>
+
+<body>
+  <h1>Hello world! (a static thing)</h1>
+  <div id="dom_id"></div>
+  <div id="app">
+	<p>
+	  {{ message }}
+	</p>
+	<p>
+	<span v-bind:title="title_varijabla">
+	  Prijeđi mišem preko mene na par sekundi...
+	</span>
+	</p>
+	<p>
+	  <span v-if="prikazi">Ovo se uvjetno prikazuje zavisno o <code>prikazi</code> varijabli</span>
+	</p>
+	<p>
+	  Što moram obaviti: <br/>
+	  <ol>
+		<li v-for="zadatak in zadaci">
+		  {{ zadatak.tekst }}
+		</li>
+	  </ol>
+	</p>
+	<p>
+	  <span>{{poruka}}</span>
+	  <button v-on:click="hendlerFunkcija" class="pure-button pure-button-primary">Stisni me</button>
+	</p>
+	
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="skripta_dom.js"></script>
+  <script src="skripta_vue.js"></script>
+</body>
+</html>

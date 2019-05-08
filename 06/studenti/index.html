@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My awesome DWA application</title>
+  <meta name="description" content="My awesome DWA application">
+  <meta name="author" content="ntankovic">
+  <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+  <style>
+    body {
+        padding: 0 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1>Lista studenata</h1>
+    <table class="pure-table">
+      <thead>
+        <tr>
+          <th>JMBAG</th>
+          <th>Ime</th>
+          <th>Prezime</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="(student, index) in studenti">
+          <td>{{ student.jmbag }}</td>
+          <td>{{ student.ime }}</td>
+          <td>{{ student.prezime }}</td>
+          <td><button class="pure-button" @click="brisi(index)">Briši</button>
+        </tr>
+      </tbody>
+    </table>
+    <br/>
+    <form class="pure-form" action="#">
+      <fieldset>
+        <legend>Dodaj novog studenta</legend>
+
+        <input type="text" v-model="novi.jmbag" placeholder="JMBAG"/>
+        <input type="text" v-model="novi.ime" placeholder="Ime"/>
+        <input type="text" v-model="novi.prezime" placeholder="Prezime"/>
+
+        <button @click="dodaj" class="pure-button pure-button-primary">Dodaj</button>
+      </fieldset>
+    </form>
+
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

@@ -8,17 +8,34 @@ class Studenti:
     def listaj():
         # ORM upit
         q = select(s for s in Student)
-        # svaku ORM instancu pretvaramo u dictionary
-        studenti = [s.to_dict() for s in q]
+
+        def dohvati_veze(x):
+            if "kolegiji" in x:
+                x["kolegiji"] = [Kolegij[y].to_dict() for y in x["kolegiji"]]
+            return x
+
+        # svaku ORM instancu pretvaramo u dictionary, i vrtimo
+        # kod za dohvat kolegija
+        studenti = [dohvati_veze(s.to_dict(with_collections=True)) for s in q]
+
         return studenti
 
     @db_session
     def dodaj(s):
         try:
             s["id"] = str(gid())
+            # provjera dal ima neki kolegij koji je došao i dal uopće postoji??
+            # ako postoji, predaj ORM instancu dalje u sloj "model"
+            if "kolegiji" in s:
+                lista_kolegija = s["kolegiji"]
+                lista_instanci = list(Kolegij[x] for x in lista_kolegija)
+                s["kolegiji"] = lista_instanci
+
             # https://pythontips.com/2013/08/04/args-and-kwargs-in-python-explained/
-            s = Student(**s)
-            return True, None
+            
+            kreirani_student = Student(**s)
+            return True, kreirani_student.id 
+
         except Exception as e:
             return False, str(e)
 
