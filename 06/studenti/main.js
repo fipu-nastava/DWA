@@ -12,6 +12,8 @@ var app = new Vue({
             jmbag: ""
         }
     },
+    computed: {
+    },
     methods: {
         dodaj: function() {
             var novi_student = {
