@@ -4,7 +4,6 @@ import datetime as dt
 from domain import Units, UnitPrices, Reservations
 from decimal import Decimal
 from flask_cors import CORS
-import dateparser
 
 app = Flask(__name__)
 CORS(app)
