@@ -2,6 +2,8 @@ from pony.orm import db_session, select
 import logging
 from model import Unit, UnitPrice, Reservation, ReservationDay
 import datetime as dt
+from collections import deque
+from decimal import Decimal
 
 class Base:
     @classmethod
@@ -83,9 +85,32 @@ class UnitPrices(Base):
     @db_session()
     def calculate(unit_id, date_from, date_to):
         try:
+            if date_from > date_to:
+                raise Exception("Invalid dates")
             rules = select((up.date_from, up.date_to, up.price) for up in UnitPrice
-                           if unit_id == up.unit_id.id and up.date_to >= date_from and up.date_from <= date_to)
-            print(rules[:])
+                           if unit_id == up.unit_id.id and up.date_to >= date_from and up.date_from <= date_to).order_by("date_from")
+            prices = rules[:]
+            total = Decimal("0.00")
+            breakdown = []
+            if len(prices):
+                deq = deque(prices)
+                min_date_to = None
+                while len(deq) > 0 and min_date_to != date_to:
+                    cur_from, cur_to, price = deq.popleft()
+                    price = Decimal(price)
+                    min_date_to = min(cur_to, date_to)
+                    max_date_from = max(cur_from, date_from)
+                    print(f"{max_date_from} --> {min_date_to} = {price}")
+                    days = (min_date_to - max_date_from).days + 1
+                    print(f"{days} days at {price}kn")
+                    total += days * price
+                    breakdown.append({"date_from": max_date_from, "date_to": min_date_to, "price": price, "days": days,
+                                      "total": "%.2f" % (days * price)})
+            
+            if total == 0:
+                return None
+            else:
+                return {"breakdown": breakdown, "total": "%.2f" % total}
 
         except Exception as e:
             logging.exception("Error in calculating price")
