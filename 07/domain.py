@@ -41,7 +41,7 @@ class Base:
             return True
         except Exception as e:
             logging.exception("Error saving data")
-            
+
     @classmethod
     @db_session()
     def listall(cls):
@@ -72,6 +72,15 @@ class UnitPrices(Base):
     model_class = UnitPrice
 
     @db_session()
+    def listall(unit_id):
+        try:
+            units = select(u for u in UnitPrice if u.unit_id.id == unit_id)
+            return [u.to_dict() for u in units]
+        except Exception as e:
+
+            logging.exception("Error saving data")
+
+    @db_session()
     def calculate(unit_id, date_from, date_to):
         try:
             rules = select((up.date_from, up.date_to, up.price) for up in UnitPrice
@@ -80,7 +89,7 @@ class UnitPrices(Base):
 
         except Exception as e:
             logging.exception("Error in calculating price")
-        
+
 
 class Reservations(Base):
     model_class = Reservation

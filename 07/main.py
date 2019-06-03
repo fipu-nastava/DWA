@@ -47,7 +47,7 @@ def handle_get_put_delete(request, Class, id_):
         if response is None:
             return error()
         return Response(status=202)
-    
+
 
 @app.route("/", methods=["GET"])
 def main():
@@ -65,23 +65,29 @@ def unit_read_id(id_):
 def unit_read_new():
     return handle_get_post(request, Units)
 
+
 @app.route("/unit/<unit_id>/unit-prices/<id_>", methods=["GET", "PUT", "DELETE"])
 def unit_prices_read_id(unit_id, id_):
     if request.method == "PUT":
         data = request.get_json()
         if not unit_id == data["unit_id"]:
             return error(400, "Non-matching 'unit_id' in body and URL")
-        
     return handle_get_put_delete(request, UnitPrices, id_)
 
 
 @app.route("/unit/<unit_id>/unit-prices", methods=["GET", "POST"])
 def unit_prices_read_new(unit_id):
-    if request.method == "POST":
+    if request.method == "GET":
+        if not unit_id:
+            return error(400, "Missing 'unit_id'")
+        data = UnitPrices.listall(unit_id)
+        return jsonify({"data": data})
+    elif request.method == "POST":
         data = request.get_json()
         if not unit_id == data["unit_id"]:
             return error(400, "Non-matching 'unit_id' in body and URL")
     return handle_get_post(request, UnitPrices)
+
 
 @app.route("/unit/<unit_id>/get-blocked-days", methods=["GET"])
 def get_blocked_days(unit_id):
@@ -95,6 +101,7 @@ def get_blocked_days(unit_id):
     retval = Units.get_blocked_days(unit_id, date_from, date_to)
     return jsonify({"data": retval})
 
+
 @app.route("/unit/<unit_id>/calculate-price", methods=["GET"])
 def get_price(unit_id):
     date_from = request.args.get("date_from", type=str)
@@ -106,6 +113,7 @@ def get_price(unit_id):
 
     retval = UnitPrices.calculate(unit_id, date_from, date_to)
     return jsonify({"data": retval})
+
 
 @app.route("/unit/<unit_id>/reserve", methods=["POST"])
 def reserve(unit_id):
